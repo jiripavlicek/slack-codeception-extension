@@ -109,6 +109,11 @@ class SlackExtension extends Extension
     protected $extendedMaxErrors = 0;
 
     /**
+     * @var bool Whether or not to show number of skipped tests in the summary.
+     */
+    protected $showNumberOfSkipped = false;
+
+    /**
      * Setup Slack client and message object.
      *
      * @throws ExtensionException in case required configuration for 'webhook' is missing
@@ -194,6 +199,12 @@ class SlackExtension extends Extension
             $this->extendedMaxErrors = max((int) $this->config['extendedMaxErrors'], 0);
         }
 
+        if (isset($this->config['showNumberOfSkipped'])
+            && (true === $this->config['showNumberOfSkipped'] || 'true' === $this->config['showNumberOfSkipped'])
+        ) {
+            $this->showNumberOfSkipped = true;
+        }
+
         if (isset($this->config['extendedMaxLength'])) {
             $this->extendedMaxLength = intval($this->config['extendedMaxLength']);
         }
@@ -253,7 +264,7 @@ class SlackExtension extends Extension
             $this->message->send(
                 ':white_check_mark: '
                 . $this->messagePrefix
-                . $numberOfTests . ' of ' . $numberOfTests . ' tests passed.'
+                . $numberOfTests . ' of ' . $numberOfTests . ' tests passed' . $this->formatSkipped($result->skippedCount()) . '.'
                 . str_replace('\\n', PHP_EOL, $this->messageSuffix)
             );
         }
@@ -282,11 +293,19 @@ class SlackExtension extends Extension
             $this->message->send(
                 ':interrobang: '
                 . $this->messagePrefix
-                . $numberOfFailedTests . ' of ' . $numberOfTests . ' tests failed.'
+                . $numberOfFailedTests . ' of ' . $numberOfTests . ' tests failed' . $this->formatSkipped($result->skippedCount()) . '.'
                 . str_replace('\\n', PHP_EOL, $this->messageSuffix)
                 . $this->messageSuffixOnFail
             );
         }
+    }
+
+    /**
+     * @param int $count
+     * @return string
+     */
+    private function formatSkipped($count) {
+        return (true === $this->showNumberOfSkipped) && $count ? " ($count tests skipped)" : '';
     }
 
     /**

@@ -48,7 +48,10 @@ Enable and configure the extension in your `codeception.yaml`
            
           # Limit the amount of reported errors in extended mode. 0 = unlimited. Default value: 0
           extendedMaxErrors: 10
-           
+
+          # Whether or not to show number of skipped tests in the summary. Default value: 'false'
+          showNumberOfSkipped: true
+
           # customize your message with additional prefix and/or suffix
            
           messagePrefix:     '*Smoke-Test*'
